@@ -81,7 +81,7 @@ void loop() {
       lightLowStartTime = 0; // 重置開始時間，亮度恢復正常
       isLightOff = false; // 亮度恢復時重置關燈狀態
     }
-     if (value > 3500 && isPeopleCountReceived && roomPeopleCount > 1) {
+     if (value > 3500 && isPeopleCountReceived && roomPeopleCount > 0) {
       if (lightOnStartTime == 0) {
         lightOnStartTime = millis();
       } else if (millis() - lightOnStartTime >= lightOnDelay) {
