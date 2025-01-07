@@ -1,10 +1,9 @@
 #include <WiFi.h>
 #include <PubSubClient.h>  //請先安裝PubSubClient程式庫
-#include <SimpleDHT.h>
 
 // ------ 以下修改成你自己的WiFi帳號密碼 ------
-char ssid[] = "SSID";
-char password[] = "password";
+char ssid[] = "Potato";
+char password[] = "dgdg9064";
 
 
 //------ 以下修改成你腳位 ------
@@ -28,6 +27,8 @@ long MQTTLastPublishTime;          //此變數用來記錄推播時間
 long MQTTPublishInterval = 5000;  //每5秒推撥一次 //使用delay不能超過6秒，會離線
 long lightLowStartTime = 0;        // 記錄亮度低於1000的開始時間
 long lightLowDuration = 20000;    // 設定亮度低於1000需維持20秒
+long lightOnStartTime = 0;         // 記錄亮度高於3500的開始時間
+long lightOnDelay = 10000;         // 設定亮度高於3500且人數大於1需延遲10秒開燈
 bool isLightOff = false;           // 記錄目前是否已關燈
 int roomPeopleCount = 0;  // 新增房間人數變數
 bool isPeopleCountReceived = false; 
@@ -75,9 +76,22 @@ void loop() {
         isLightOff = true; // 設置狀態為已關燈
         lightLowStartTime = 0; // 重置開始時間
       }
+      
     } else {
       lightLowStartTime = 0; // 重置開始時間，亮度恢復正常
       isLightOff = false; // 亮度恢復時重置關燈狀態
+    }
+     if (value > 3500 && isPeopleCountReceived && roomPeopleCount > 1) {
+      if (lightOnStartTime == 0) {
+        lightOnStartTime = millis();
+      } else if (millis() - lightOnStartTime >= lightOnDelay) {
+        Serial.println("亮度過高且房間人數大於1，延遲10秒後自動開燈");
+        myServo.write(3); // 將伺服馬達轉到開燈位置
+        MQTTClient.publish(MQTTSubTopic1, "0"); // 推播開燈通知
+        lightOnStartTime = 0; // 重置開始時間
+      }
+    } else {
+      lightOnStartTime = 0; // 重置開始時間
     }
   }
   MQTTClient.loop();  //更新訂閱狀態
