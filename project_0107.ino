@@ -2,8 +2,8 @@
 #include <PubSubClient.h>  //請先安裝PubSubClient程式庫
 
 // ------ 以下修改成你自己的WiFi帳號密碼 ------
-char ssid[] = "Potato";
-char password[] = "dgdg9064";
+char ssid[] = "SSID";
+char password[] = "password";
 
 
 //------ 以下修改成你腳位 ------
